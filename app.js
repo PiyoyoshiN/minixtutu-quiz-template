@@ -1,8 +1,10 @@
 // Minixtutu Quiz Template
 // 画面制御・採点・シャッフル・リセットを担当するファイルです。
 
+const sourceQuestions = typeof QUESTIONS !== "undefined" ? QUESTIONS : window.QUESTIONS;
+
 const state = {
-  allQuestions: Array.isArray(window.QUESTIONS) ? window.QUESTIONS : QUESTIONS,
+  allQuestions: Array.isArray(sourceQuestions) ? sourceQuestions : [],
   questions: [],
   currentIndex: 0,
   score: 0,
@@ -86,11 +88,9 @@ function renderQuestion() {
   els.categoryBadge.textContent = question.category || "未分類";
   els.typeBadge.textContent = getTypeLabel(question);
   els.questionText.textContent = question.prompt;
-  els.helperText.textContent = question.type === "multi"
-    ? `正しいものを${question.answer.length}つ選んでください。`
-    : "正しいものを1つ選んでください。";
+  els.helperText.textContent = getHelperText(question);
 
-  renderChoices(question);
+  renderAnswerArea(question);
   hideResult();
   updateStatus();
 
@@ -98,9 +98,30 @@ function renderQuestion() {
   els.nextBtn.disabled = true;
 }
 
-function renderChoices(question) {
+function getHelperText(question) {
+  if (question.type === "multi") {
+    return `正しいものを${question.answer.length}つ選んでください。`;
+  }
+
+  if (question.type === "input") {
+    return `答えを${getInputAnswerCount(question)}つ入力してから「判定」を押してください。表記ゆれはある程度吸収します。`;
+  }
+
+  return "正しいものを1つ選んでください。";
+}
+
+function renderAnswerArea(question) {
   els.choicesForm.innerHTML = "";
 
+  if (question.type === "input") {
+    renderTextInputs(question);
+    return;
+  }
+
+  renderChoices(question);
+}
+
+function renderChoices(question) {
   const inputType = question.type === "multi" ? "checkbox" : "radio";
   const name = `question-${question.id}`;
 
@@ -127,10 +148,39 @@ function renderChoices(question) {
   });
 }
 
+function renderTextInputs(question) {
+  const answerCount = getInputAnswerCount(question);
+
+  for (let index = 0; index < answerCount; index += 1) {
+    const label = document.createElement("label");
+    label.className = "text-answer";
+
+    const caption = document.createElement("span");
+    caption.className = "text-answer-label";
+    caption.textContent = `回答 ${index + 1}`;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.autocomplete = "off";
+    input.inputMode = "text";
+    input.placeholder = question.placeholder || "答えを入力";
+    input.dataset.answerInput = "true";
+
+    label.append(caption, input);
+    els.choicesForm.appendChild(label);
+  }
+}
+
 function checkAnswer() {
   if (state.answered) return;
 
   const question = getCurrentQuestion();
+
+  if (question.type === "input") {
+    checkInputAnswer(question);
+    return;
+  }
+
   const selected = getSelectedAnswers();
 
   if (selected.length === 0) {
@@ -153,7 +203,39 @@ function checkAnswer() {
   markChoices(question, selected);
   showFeedback(isCorrect ? "正解！" : `不正解。正解は ${formatAnswer(question.answer)} です。`, isCorrect ? "correct" : "wrong");
   showExplanation(question.explanation || "解説はまだ入力されていません。");
+  finishQuestion();
+}
 
+function checkInputAnswer(question) {
+  const rawAnswers = getTextAnswers();
+  const filledAnswers = rawAnswers.filter((answer) => normalizeAnswer(answer) !== "");
+  const requiredCount = getInputAnswerCount(question);
+
+  if (filledAnswers.length < requiredCount) {
+    showFeedback(`${requiredCount}つすべて入力してください。`, "warn");
+    return;
+  }
+
+  const result = evaluateInputAnswer(question, rawAnswers);
+  const isCorrect = result.isCorrect;
+  state.answered = true;
+
+  if (isCorrect) {
+    state.score += 1;
+  }
+
+  markTextInputs(result.details);
+  showFeedback(
+    isCorrect
+      ? "正解！"
+      : `不正解。正解 ${result.matchedCount} / ${result.requiredCount}。正解例: ${result.answerLabels.join("・")}`,
+    isCorrect ? "correct" : "wrong"
+  );
+  showExplanation(question.explanation || "解説はまだ入力されていません。");
+  finishQuestion();
+}
+
+function finishQuestion() {
   els.checkBtn.disabled = true;
   els.nextBtn.disabled = state.currentIndex >= state.questions.length - 1;
   updateStatus();
@@ -176,6 +258,7 @@ function shuffleCurrentQuestions() {
   state.currentIndex = 0;
   state.score = 0;
   state.answered = false;
+  els.nextBtn.textContent = "次へ";
   renderQuestion();
 }
 
@@ -189,9 +272,89 @@ function getSelectedAnswers() {
     .sort((a, b) => a - b);
 }
 
+function getTextAnswers() {
+  return [...els.choicesForm.querySelectorAll("input[data-answer-input='true']")]
+    .map((input) => input.value);
+}
+
 function isSameAnswer(selected, answer) {
   const sortedAnswer = [...answer].sort((a, b) => a - b);
   return selected.length === sortedAnswer.length && selected.every((value, index) => value === sortedAnswer[index]);
+}
+
+function evaluateInputAnswer(question, rawAnswers) {
+  const groups = getAcceptedAnswerGroups(question);
+  const matchedGroups = new Set();
+
+  const details = rawAnswers.map((rawAnswer) => {
+    const normalized = normalizeAnswer(rawAnswer);
+    const groupIndex = groups.findIndex((group, index) => {
+      return !matchedGroups.has(index) && group.normalizedAliases.includes(normalized);
+    });
+
+    if (groupIndex >= 0) {
+      matchedGroups.add(groupIndex);
+    }
+
+    return {
+      rawAnswer,
+      normalized,
+      isCorrect: groupIndex >= 0,
+      matchedLabel: groupIndex >= 0 ? groups[groupIndex].label : ""
+    };
+  });
+
+  return {
+    isCorrect: matchedGroups.size === groups.length,
+    matchedCount: matchedGroups.size,
+    requiredCount: groups.length,
+    answerLabels: groups.map((group) => group.label),
+    details
+  };
+}
+
+function getAcceptedAnswerGroups(question) {
+  const acceptedAnswers = question.acceptedAnswers || [];
+
+  return acceptedAnswers.map((answer) => {
+    if (typeof answer === "string") {
+      return {
+        label: answer,
+        normalizedAliases: [normalizeAnswer(answer)]
+      };
+    }
+
+    const aliases = [answer.label, ...(answer.aliases || [])].filter(Boolean);
+    return {
+      label: answer.label,
+      normalizedAliases: [...new Set(aliases.map(normalizeAnswer))]
+    };
+  });
+}
+
+function getInputAnswerCount(question) {
+  if (Number.isInteger(question.answerCount) && question.answerCount > 0) {
+    return question.answerCount;
+  }
+
+  if (Array.isArray(question.acceptedAnswers) && question.acceptedAnswers.length > 0) {
+    return question.acceptedAnswers.length;
+  }
+
+  return 1;
+}
+
+function normalizeAnswer(value) {
+  return String(value)
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase()
+    .replace(/[αΑ]/g, "alpha")
+    .replace(/[βΒ]/g, "beta")
+    .replace(/[γΓ]/g, "gamma")
+    .replace(/[ωΩ]/g, "omega")
+    .replace(/[‐‑‒–—―−ーｰ]/g, "-")
+    .replace(/[\s　]/g, "");
 }
 
 function markChoices(question, selected) {
@@ -210,6 +373,22 @@ function markChoices(question, selected) {
     if (selectedSet.has(choiceNumber) && !correctSet.has(choiceNumber)) {
       label.classList.add("is-wrong");
     }
+  });
+}
+
+function markTextInputs(details) {
+  const labels = [...els.choicesForm.querySelectorAll(".text-answer")];
+
+  labels.forEach((label, index) => {
+    const input = label.querySelector("input");
+    input.disabled = true;
+
+    if (details[index]?.isCorrect) {
+      label.classList.add("is-correct");
+      return;
+    }
+
+    label.classList.add("is-wrong");
   });
 }
 
@@ -241,6 +420,11 @@ function getTypeLabel(question) {
   if (question.type === "multi") {
     return `${question.choices.length}択・${question.answer.length}つ選択`;
   }
+
+  if (question.type === "input") {
+    return `入力式・${getInputAnswerCount(question)}つ回答`;
+  }
+
   return `${question.choices.length}択・1つ選択`;
 }
 
