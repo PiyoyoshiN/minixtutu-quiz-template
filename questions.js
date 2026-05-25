@@ -3,11 +3,13 @@
 // choices は4択でも5択でも、それ以上でも動きます。
 // answer は選択肢番号を 1 始まりで指定します。例: [2] / [1, 4]
 // input の acceptedAnswers は、正解グループごとに label と aliases を書けます。
+// hiddenInAll: true を付けた問題は「すべて（サンプル除外）」には出ません。
 
 const QUESTIONS = [
   {
     id: "sample-001",
     category: "サンプル",
+    hiddenInAll: true,
     type: "single",
     prompt: "このテンプレートで問題を追加するとき、主に編集するファイルはどれか。",
     choices: [
@@ -22,6 +24,7 @@ const QUESTIONS = [
   {
     id: "sample-002",
     category: "サンプル",
+    hiddenInAll: true,
     type: "single",
     prompt: "5択問題の例です。Webページの見た目を主に担当するファイルはどれか。",
     choices: [
@@ -37,6 +40,7 @@ const QUESTIONS = [
   {
     id: "sample-003",
     category: "サンプル",
+    hiddenInAll: true,
     type: "multi",
     prompt: "このテンプレートにある機能として正しいものを2つ選べ。",
     choices: [
@@ -51,6 +55,7 @@ const QUESTIONS = [
   {
     id: "sample-004",
     category: "入力式サンプル",
+    hiddenInAll: true,
     type: "input",
     prompt: "n-3系脂肪酸を3つ答えよ。",
     answerCount: 3,
