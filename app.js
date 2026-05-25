@@ -31,11 +31,10 @@ const els = {
 };
 
 function init() {
-  if (!Array.isArray(state.allQuestions) || state.allQuestions.length === 0) {
+  if (!state.allQuestions.length) {
     showEmptyMessage();
     return;
   }
-
   setupCategoryFilter();
   applyFilterAndReset();
   bindEvents();
@@ -43,13 +42,9 @@ function init() {
 
 function setupCategoryFilter() {
   const categories = [...new Set(state.allQuestions.map((q) => q.category || "未分類"))];
-
   els.categoryFilter.innerHTML = "";
   els.categoryFilter.appendChild(new Option("すべて（サンプル除外）", "all"));
-
-  categories.forEach((category) => {
-    els.categoryFilter.appendChild(new Option(category, category));
-  });
+  categories.forEach((category) => els.categoryFilter.appendChild(new Option(category, category)));
 }
 
 function bindEvents() {
@@ -64,68 +59,56 @@ function bindEvents() {
 }
 
 function applyFilterAndReset() {
-  const filtered = state.selectedCategory === "all"
+  state.questions = state.selectedCategory === "all"
     ? state.allQuestions.filter((q) => !q.hiddenInAll)
     : state.allQuestions.filter((q) => (q.category || "未分類") === state.selectedCategory);
-
-  state.questions = filtered;
   state.currentIndex = 0;
   state.score = 0;
   state.answered = false;
   els.nextBtn.textContent = "次へ";
-
-  if (state.questions.length === 0) {
+  if (!state.questions.length) {
     showEmptyMessage();
     return;
   }
-
   renderQuestion();
 }
 
 function renderQuestion() {
   const question = getCurrentQuestion();
   state.answered = false;
-
   els.categoryBadge.textContent = question.category || "未分類";
   els.typeBadge.textContent = getTypeLabel(question);
   els.questionText.textContent = question.prompt;
-  els.helperText.textContent = getHelperText(question);
+
+  const helper = getHelperText(question);
+  els.helperText.textContent = helper;
+  els.helperText.hidden = helper === "";
 
   renderAnswerArea(question);
   hideResult();
   updateStatus();
-
   els.checkBtn.disabled = false;
   els.nextBtn.disabled = true;
 }
 
 function getHelperText(question) {
-  if (question.type === "multi") {
-    return `正しいものを${question.answer.length}つ選んでください。`;
-  }
-
-  if (question.type === "input") {
-    return `答えを${getInputAnswerCount(question)}つ入力してから「判定」を押してください。表記ゆれはある程度吸収します。`;
-  }
-
+  if (question.type === "multi") return `正しいものを${question.answer.length}つ選んでください。`;
+  if (question.type === "input") return "";
   return "正しいものを1つ選んでください。";
 }
 
 function renderAnswerArea(question) {
   els.choicesForm.innerHTML = "";
-
   if (question.type === "input") {
     renderTextInputs(question);
     return;
   }
-
   renderChoices(question);
 }
 
 function renderChoices(question) {
   const inputType = question.type === "multi" ? "checkbox" : "radio";
   const name = `question-${question.id}`;
-
   question.choices.forEach((choice, index) => {
     const choiceNumber = index + 1;
     const label = document.createElement("label");
@@ -151,7 +134,6 @@ function renderChoices(question) {
 
 function renderTextInputs(question) {
   const answerCount = getInputAnswerCount(question);
-
   for (let index = 0; index < answerCount; index += 1) {
     const label = document.createElement("label");
     label.className = "text-answer";
@@ -174,21 +156,17 @@ function renderTextInputs(question) {
 
 function checkAnswer() {
   if (state.answered) return;
-
   const question = getCurrentQuestion();
-
   if (question.type === "input") {
     checkInputAnswer(question);
     return;
   }
 
   const selected = getSelectedAnswers();
-
   if (selected.length === 0) {
     showFeedback("選択肢を選んでください。", "warn");
     return;
   }
-
   if (question.type === "multi" && selected.length !== question.answer.length) {
     showFeedback(`${question.answer.length}つ選んでください。`, "warn");
     return;
@@ -196,11 +174,7 @@ function checkAnswer() {
 
   const isCorrect = isSameAnswer(selected, question.answer);
   state.answered = true;
-
-  if (isCorrect) {
-    state.score += 1;
-  }
-
+  if (isCorrect) state.score += 1;
   markChoices(question, selected);
   showFeedback(isCorrect ? "正解！" : `不正解。正解は ${formatAnswer(question.answer)} です。`, isCorrect ? "correct" : "wrong");
   showExplanation(question.explanation || "解説はまだ入力されていません。");
@@ -211,7 +185,6 @@ function checkInputAnswer(question) {
   const rawAnswers = getTextAnswers();
   const filledAnswers = rawAnswers.filter((answer) => normalizeAnswer(answer) !== "");
   const requiredCount = getInputAnswerCount(question);
-
   if (filledAnswers.length < requiredCount) {
     showFeedback(`${requiredCount}つすべて入力してください。`, "warn");
     return;
@@ -220,16 +193,10 @@ function checkInputAnswer(question) {
   const result = evaluateInputAnswer(question, rawAnswers);
   const isCorrect = result.isCorrect;
   state.answered = true;
-
-  if (isCorrect) {
-    state.score += 1;
-  }
-
+  if (isCorrect) state.score += 1;
   markTextInputs(result.details);
   showFeedback(
-    isCorrect
-      ? "正解！"
-      : `不正解。正解 ${result.matchedCount} / ${result.requiredCount}。正解例: ${result.answerLabels.join("・")}`,
+    isCorrect ? "正解！" : `不正解。正解 ${result.matchedCount} / ${result.requiredCount}。正解例: ${result.answerLabels.join("・")}`,
     isCorrect ? "correct" : "wrong"
   );
   showExplanation(question.explanation || "解説はまだ入力されていません。");
@@ -240,10 +207,7 @@ function finishQuestion() {
   els.checkBtn.disabled = true;
   els.nextBtn.disabled = state.currentIndex >= state.questions.length - 1;
   updateStatus();
-
-  if (state.currentIndex >= state.questions.length - 1) {
-    els.nextBtn.textContent = "終了";
-  }
+  if (state.currentIndex >= state.questions.length - 1) els.nextBtn.textContent = "終了";
 }
 
 function nextQuestion() {
@@ -274,8 +238,7 @@ function getSelectedAnswers() {
 }
 
 function getTextAnswers() {
-  return [...els.choicesForm.querySelectorAll("input[data-answer-input='true']")]
-    .map((input) => input.value);
+  return [...els.choicesForm.querySelectorAll("input[data-answer-input='true']")].map((input) => input.value);
 }
 
 function isSameAnswer(selected, answer) {
@@ -286,17 +249,10 @@ function isSameAnswer(selected, answer) {
 function evaluateInputAnswer(question, rawAnswers) {
   const groups = getAcceptedAnswerGroups(question);
   const matchedGroups = new Set();
-
   const details = rawAnswers.map((rawAnswer) => {
     const normalized = normalizeAnswer(rawAnswer);
-    const groupIndex = groups.findIndex((group, index) => {
-      return !matchedGroups.has(index) && group.normalizedAliases.includes(normalized);
-    });
-
-    if (groupIndex >= 0) {
-      matchedGroups.add(groupIndex);
-    }
-
+    const groupIndex = groups.findIndex((group, index) => !matchedGroups.has(index) && group.normalizedAliases.includes(normalized));
+    if (groupIndex >= 0) matchedGroups.add(groupIndex);
     return {
       rawAnswer,
       normalized,
@@ -315,16 +271,10 @@ function evaluateInputAnswer(question, rawAnswers) {
 }
 
 function getAcceptedAnswerGroups(question) {
-  const acceptedAnswers = question.acceptedAnswers || [];
-
-  return acceptedAnswers.map((answer) => {
+  return (question.acceptedAnswers || []).map((answer) => {
     if (typeof answer === "string") {
-      return {
-        label: answer,
-        normalizedAliases: [normalizeAnswer(answer)]
-      };
+      return { label: answer, normalizedAliases: [normalizeAnswer(answer)] };
     }
-
     const aliases = [answer.label, ...(answer.aliases || [])].filter(Boolean);
     return {
       label: answer.label,
@@ -334,14 +284,8 @@ function getAcceptedAnswerGroups(question) {
 }
 
 function getInputAnswerCount(question) {
-  if (Number.isInteger(question.answerCount) && question.answerCount > 0) {
-    return question.answerCount;
-  }
-
-  if (Array.isArray(question.acceptedAnswers) && question.acceptedAnswers.length > 0) {
-    return question.acceptedAnswers.length;
-  }
-
+  if (Number.isInteger(question.answerCount) && question.answerCount > 0) return question.answerCount;
+  if (Array.isArray(question.acceptedAnswers) && question.acceptedAnswers.length > 0) return question.acceptedAnswers.length;
   return 1;
 }
 
@@ -361,35 +305,20 @@ function normalizeAnswer(value) {
 function markChoices(question, selected) {
   const correctSet = new Set(question.answer);
   const selectedSet = new Set(selected);
-
   [...els.choicesForm.querySelectorAll(".choice")].forEach((label, index) => {
     const choiceNumber = index + 1;
     const input = label.querySelector("input");
     input.disabled = true;
-
-    if (correctSet.has(choiceNumber)) {
-      label.classList.add("is-correct");
-    }
-
-    if (selectedSet.has(choiceNumber) && !correctSet.has(choiceNumber)) {
-      label.classList.add("is-wrong");
-    }
+    if (correctSet.has(choiceNumber)) label.classList.add("is-correct");
+    if (selectedSet.has(choiceNumber) && !correctSet.has(choiceNumber)) label.classList.add("is-wrong");
   });
 }
 
 function markTextInputs(details) {
-  const labels = [...els.choicesForm.querySelectorAll(".text-answer")];
-
-  labels.forEach((label, index) => {
+  [...els.choicesForm.querySelectorAll(".text-answer")].forEach((label, index) => {
     const input = label.querySelector("input");
     input.disabled = true;
-
-    if (details[index]?.isCorrect) {
-      label.classList.add("is-correct");
-      return;
-    }
-
-    label.classList.add("is-wrong");
+    label.classList.add(details[index]?.isCorrect ? "is-correct" : "is-wrong");
   });
 }
 
@@ -418,14 +347,8 @@ function updateStatus() {
 }
 
 function getTypeLabel(question) {
-  if (question.type === "multi") {
-    return `${question.choices.length}択・${question.answer.length}つ選択`;
-  }
-
-  if (question.type === "input") {
-    return `入力式・${getInputAnswerCount(question)}つ回答`;
-  }
-
+  if (question.type === "multi") return `${question.choices.length}択・${question.answer.length}つ選択`;
+  if (question.type === "input") return `入力式・${getInputAnswerCount(question)}つ回答`;
   return `${question.choices.length}択・1つ選択`;
 }
 
@@ -443,6 +366,7 @@ function shuffleArray(array) {
 
 function showEmptyMessage() {
   els.questionText.textContent = "問題がありません";
+  els.helperText.hidden = false;
   els.helperText.textContent = "questions.js に問題を追加してください。";
   els.choicesForm.innerHTML = "";
   hideResult();
