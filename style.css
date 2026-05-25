@@ -195,14 +195,40 @@ h2 {
   line-height: 1.55;
 }
 
-.choice.is-correct {
+.choice.is-correct,
+.text-answer.is-correct input {
   border-color: var(--correct-border);
   background: var(--correct-bg);
 }
 
-.choice.is-wrong {
+.choice.is-wrong,
+.text-answer.is-wrong input {
   border-color: var(--wrong-border);
   background: var(--wrong-bg);
+}
+
+.text-answer {
+  display: grid;
+  gap: 7px;
+}
+
+.text-answer-label {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.text-answer input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 13px 14px;
+  background: #fff;
+}
+
+.text-answer input:focus {
+  border-color: var(--primary);
+  outline: 3px solid rgba(37, 99, 235, 0.16);
 }
 
 .feedback,
