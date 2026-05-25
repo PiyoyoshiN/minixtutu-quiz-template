@@ -146,5 +146,87 @@ const QUESTIONS = [
     ],
     answer: [2],
     explanation: "スクロースはグルコース＋フルクトースからなる二糖類です。マルトースはグルコース＋グルコース、ラクトースはグルコース＋ガラクトース、トレハロースはグルコース2分子からなります。"
+  },
+  {
+    id: "sports-nutrition-02-006",
+    category: "スポーツ栄養学②",
+    type: "single",
+    prompt: "コレステロールを最も多く含み、肝臓で合成されたコレステロールを全身に運搬するリポたんぱく質はどちらか。",
+    choices: [
+      "LDL",
+      "HDL"
+    ],
+    answer: [1],
+    explanation: "LDLはコレステロールを多く含み、肝臓で合成されたコレステロールを全身の組織へ運びます。HDLは余分なコレステロールを回収して肝臓へ戻す側です。"
+  },
+  {
+    id: "sports-nutrition-02-007",
+    category: "スポーツ栄養学②",
+    type: "single",
+    prompt: "全身の組織から過剰なコレステロールを回収して、肝臓に戻すリポたんぱく質はどちらか。",
+    choices: [
+      "LDL",
+      "HDL"
+    ],
+    answer: [2],
+    explanation: "HDLは全身の組織から過剰なコレステロールを回収し、肝臓に戻す働きをします。LDLはコレステロールを全身へ運ぶ側です。"
+  },
+  {
+    id: "sports-nutrition-02-008",
+    category: "スポーツ栄養学②",
+    type: "single",
+    prompt: "n-3系脂肪酸は、血中の中性脂肪やLDLコレステロールをどう変化させる作用があるか。",
+    choices: [
+      "減少",
+      "増加"
+    ],
+    answer: [1],
+    explanation: "n-3系脂肪酸には、血中の中性脂肪やLDLコレステロールを減らし、HDLコレステロールを増やす働きがあります。"
+  },
+  {
+    id: "sports-nutrition-02-009",
+    category: "スポーツ栄養学②",
+    type: "input",
+    prompt: "n-3系脂肪酸を3つ書きなさい。",
+    answerCount: 3,
+    placeholder: "例: EPA",
+    acceptedAnswers: [
+      {
+        label: "α-リノレン酸",
+        aliases: ["アルファリノレン酸", "αリノレン酸", "alpha-リノレン酸", "alphaリノレン酸", "ALA"]
+      },
+      {
+        label: "EPA",
+        aliases: ["エイコサペンタエン酸", "イコサペンタエン酸", "IPA", "EPA(IPA)", "エイコサペンタエン酸(IPA)"]
+      },
+      {
+        label: "DHA",
+        aliases: ["ドコサヘキサエン酸", "ドコサヘキサエン酸(DHA)"]
+      }
+    ],
+    explanation: "n-3系脂肪酸の代表例は、α-リノレン酸、EPA（IPA）、DHAです。"
+  },
+  {
+    id: "sports-nutrition-02-010",
+    category: "スポーツ栄養学②",
+    type: "input",
+    prompt: "n-6系脂肪酸を3つ書きなさい。",
+    answerCount: 3,
+    placeholder: "例: リノール酸",
+    acceptedAnswers: [
+      {
+        label: "リノール酸",
+        aliases: ["linoleic acid"]
+      },
+      {
+        label: "γ-リノレン酸",
+        aliases: ["ガンマリノレン酸", "γリノレン酸", "gamma-リノレン酸", "gammaリノレン酸", "GLA"]
+      },
+      {
+        label: "アラキドン酸",
+        aliases: ["arachidonic acid", "AA"]
+      }
+    ],
+    explanation: "n-6系脂肪酸の代表例は、リノール酸、γ-リノレン酸、アラキドン酸です。"
   }
 ];
