@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minixtutu Quiz Template</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Reusable quiz app</p>
+        <h1>Minixtutu Quiz Template</h1>
+        <p class="lead">問題データを差し替えるだけで使える、軽量クイズテンプレート。</p>
+      </div>
+      <div class="score-board" aria-label="進捗とスコア">
+        <span id="progressText">0 / 0</span>
+        <span id="scoreText">Score: 0</span>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="クイズ設定">
+      <label class="select-label" for="categoryFilter">カテゴリ</label>
+      <select id="categoryFilter"></select>
+      <button id="shuffleBtn" class="btn ghost" type="button">シャッフル</button>
+      <button id="resetBtn" class="btn ghost danger" type="button">リセット</button>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <div class="question-meta">
+        <span id="categoryBadge" class="badge">-</span>
+        <span id="typeBadge" class="badge soft">-</span>
+      </div>
+
+      <h2 id="questionText">読み込み中…</h2>
+      <p id="helperText" class="helper">選択肢を選んで「判定」を押してください。</p>
+
+      <form id="choicesForm" class="choices"></form>
+
+      <div id="feedback" class="feedback" hidden></div>
+
+      <section id="explanationBox" class="explanation" hidden>
+        <h3>解説</h3>
+        <p id="explanationText"></p>
+      </section>
+
+      <div class="actions">
+        <button id="checkBtn" class="btn primary" type="button">判定</button>
+        <button id="nextBtn" class="btn" type="button" disabled>次へ</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>HTML / CSS / JavaScript only. Edit <code>questions.js</code> to reuse.</small>
+    </footer>
+  </main>
+
+  <script src="./questions.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
