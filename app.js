@@ -45,7 +45,7 @@ function setupCategoryFilter() {
   const categories = [...new Set(state.allQuestions.map((q) => q.category || "未分類"))];
 
   els.categoryFilter.innerHTML = "";
-  els.categoryFilter.appendChild(new Option("すべて", "all"));
+  els.categoryFilter.appendChild(new Option("すべて（サンプル除外）", "all"));
 
   categories.forEach((category) => {
     els.categoryFilter.appendChild(new Option(category, category));
@@ -65,13 +65,14 @@ function bindEvents() {
 
 function applyFilterAndReset() {
   const filtered = state.selectedCategory === "all"
-    ? [...state.allQuestions]
+    ? state.allQuestions.filter((q) => !q.hiddenInAll)
     : state.allQuestions.filter((q) => (q.category || "未分類") === state.selectedCategory);
 
   state.questions = filtered;
   state.currentIndex = 0;
   state.score = 0;
   state.answered = false;
+  els.nextBtn.textContent = "次へ";
 
   if (state.questions.length === 0) {
     showEmptyMessage();
