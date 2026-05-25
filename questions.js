@@ -61,20 +61,11 @@ const QUESTIONS = [
     answerCount: 3,
     placeholder: "例: DHA",
     acceptedAnswers: [
-      {
-        label: "α-リノレン酸",
-        aliases: ["アルファリノレン酸", "αリノレン酸", "alpha-リノレン酸", "alphaリノレン酸", "ALA"]
-      },
-      {
-        label: "EPA",
-        aliases: ["エイコサペンタエン酸", "イコサペンタエン酸", "エイコサペンタエン酸(EPA)"]
-      },
-      {
-        label: "DHA",
-        aliases: ["ドコサヘキサエン酸", "ドコサヘキサエン酸(DHA)"]
-      }
+      { label: "α-リノレン酸", aliases: ["アルファリノレン酸", "αリノレン酸", "alpha-リノレン酸", "alphaリノレン酸", "ALA"] },
+      { label: "EPA", aliases: ["エイコサペンタエン酸", "イコサペンタエン酸", "エイコサペンタエン酸(EPA)"] },
+      { label: "DHA", aliases: ["ドコサヘキサエン酸", "ドコサヘキサエン酸(DHA)"] }
     ],
-    explanation: "n-3系脂肪酸の代表例は、α-リノレン酸、EPA、DHAです。入力式では、全角半角、空白、ハイフン・マイナス・長音などの揺れをある程度吸収します。"
+    explanation: "n-3系脂肪酸の代表例は、α-リノレン酸、EPA、DHAです。"
   },
   {
     id: "sports-nutrition-01-001",
@@ -222,10 +213,7 @@ const QUESTIONS = [
     category: "スポーツ栄養学②",
     type: "single",
     prompt: "コレステロールを最も多く含み、肝臓で合成されたコレステロールを全身に運搬するリポたんぱく質はどちらか。",
-    choices: [
-      "LDL",
-      "HDL"
-    ],
+    choices: ["LDL", "HDL"],
     answer: [1],
     explanation: "LDLはコレステロールを多く含み、肝臓で合成されたコレステロールを全身の組織へ運びます。HDLは余分なコレステロールを回収して肝臓へ戻す側です。"
   },
@@ -234,10 +222,7 @@ const QUESTIONS = [
     category: "スポーツ栄養学②",
     type: "single",
     prompt: "全身の組織から過剰なコレステロールを回収して、肝臓に戻すリポたんぱく質はどちらか。",
-    choices: [
-      "LDL",
-      "HDL"
-    ],
+    choices: ["LDL", "HDL"],
     answer: [2],
     explanation: "HDLは全身の組織から過剰なコレステロールを回収し、肝臓に戻す働きをします。LDLはコレステロールを全身へ運ぶ側です。"
   },
@@ -246,10 +231,7 @@ const QUESTIONS = [
     category: "スポーツ栄養学②",
     type: "single",
     prompt: "n-3系脂肪酸は、血中の中性脂肪やLDLコレステロールをどう変化させる作用があるか。",
-    choices: [
-      "減少",
-      "増加"
-    ],
+    choices: ["減少", "増加"],
     answer: [1],
     explanation: "n-3系脂肪酸には、血中の中性脂肪やLDLコレステロールを減らし、HDLコレステロールを増やす働きがあります。"
   },
@@ -261,18 +243,9 @@ const QUESTIONS = [
     answerCount: 3,
     placeholder: "例: EPA",
     acceptedAnswers: [
-      {
-        label: "α-リノレン酸",
-        aliases: ["アルファリノレン酸", "αリノレン酸", "alpha-リノレン酸", "alphaリノレン酸", "ALA"]
-      },
-      {
-        label: "EPA",
-        aliases: ["エイコサペンタエン酸", "イコサペンタエン酸", "IPA", "EPA(IPA)", "エイコサペンタエン酸(IPA)"]
-      },
-      {
-        label: "DHA",
-        aliases: ["ドコサヘキサエン酸", "ドコサヘキサエン酸(DHA)"]
-      }
+      { label: "α-リノレン酸", aliases: ["アルファリノレン酸", "αリノレン酸", "alpha-リノレン酸", "alphaリノレン酸", "ALA"] },
+      { label: "EPA", aliases: ["エイコサペンタエン酸", "イコサペンタエン酸", "IPA", "EPA(IPA)", "エイコサペンタエン酸(IPA)"] },
+      { label: "DHA", aliases: ["ドコサヘキサエン酸", "ドコサヘキサエン酸(DHA)"] }
     ],
     explanation: "n-3系脂肪酸の代表例は、α-リノレン酸、EPA（IPA）、DHAです。"
   },
@@ -284,19 +257,100 @@ const QUESTIONS = [
     answerCount: 3,
     placeholder: "例: リノール酸",
     acceptedAnswers: [
-      {
-        label: "リノール酸",
-        aliases: ["linoleic acid"]
-      },
-      {
-        label: "γ-リノレン酸",
-        aliases: ["ガンマリノレン酸", "γリノレン酸", "gamma-リノレン酸", "gammaリノレン酸", "GLA"]
-      },
-      {
-        label: "アラキドン酸",
-        aliases: ["arachidonic acid", "AA"]
-      }
+      { label: "リノール酸", aliases: ["linoleic acid"] },
+      { label: "γ-リノレン酸", aliases: ["ガンマリノレン酸", "γリノレン酸", "gamma-リノレン酸", "gammaリノレン酸", "GLA"] },
+      { label: "アラキドン酸", aliases: ["arachidonic acid", "AA"] }
     ],
     explanation: "n-6系脂肪酸の代表例は、リノール酸、γ-リノレン酸、アラキドン酸です。"
+  },
+  {
+    id: "sports-nutrition-03-001",
+    category: "スポーツ栄養学③",
+    type: "single",
+    prompt: "次のたんぱく質に関する記述のうち、正しいものを1つ選びなさい。",
+    choices: [
+      "アミノ酸スコアの評価は100以上から判定される。",
+      "たんぱく質は30種類のアミノ酸で構成されている。",
+      "必須アミノ酸は、グルタミン、アスパラギンを含む全9種類である。",
+      "たんぱく質はアミノ酸で構成された高分子化合物である。"
+    ],
+    answer: [4],
+    explanation: "たんぱく質は、多数のアミノ酸がペプチド結合でつながった高分子化合物です。たんぱく質を作るアミノ酸は20種類で、必須アミノ酸は体内で合成できない9種類です。グルタミンやアスパラギンは必須アミノ酸ではありません。"
+  },
+  {
+    id: "sports-nutrition-03-002",
+    category: "スポーツ栄養学③",
+    type: "single",
+    prompt: "次のたんぱく質に関する記述のうち、誤っているものを1つ選びなさい。",
+    choices: [
+      "たんぱく質は体組成の構成成分であり、エネルギー供給源でもある。",
+      "複合たんぱく質には、アルブミン、グロブリンなどがある。",
+      "リポたんぱく質は、単純たんぱく質と脂質が結合したものである。",
+      "たんぱく質は、ホルモンや酵素の主成分である。"
+    ],
+    answer: [2],
+    explanation: "アルブミンやグロブリンは、アミノ酸のみで構成される単純たんぱく質の例です。複合たんぱく質には、糖たんぱく質、リポたんぱく質、色素たんぱく質などがあります。"
+  },
+  {
+    id: "sports-nutrition-03-003",
+    category: "スポーツ栄養学③",
+    type: "single",
+    prompt: "次のたんぱく質に関する記述のうち、誤っているものを1つ選びなさい。",
+    choices: [
+      "たんぱく質は体の中に取り入れられて、最終的にはアミノ酸まで分解され、小腸から吸収される。",
+      "たんぱく質の化学的評価法にアミノ酸スコアがあり、アミノ酸評価点パターンと食品たんぱく質中の必須アミノ酸の比率を比較することで、たんぱく質の栄養価を評価する。",
+      "一般に、必須アミノ酸が多い動物性たんぱく質の方が、植物性たんぱく質に比べて栄養価が高い。",
+      "アミノ酸は、必須アミノ酸と非必須アミノ酸に分類され、必須アミノ酸は体内で合成されるので、必ずしも食べ物で摂取しなくてもよい。"
+    ],
+    answer: [4],
+    explanation: "必須アミノ酸は体内で合成できないため、食事から摂取する必要があります。アミノ酸スコアは、食品たんぱく質中の必須アミノ酸のバランスを評価する指標です。"
+  },
+  {
+    id: "sports-nutrition-03-004",
+    category: "スポーツ栄養学③",
+    type: "single",
+    prompt: "たんぱく質に関する記述について、正しいものを1つ選びなさい。",
+    choices: [
+      "たんぱく質のみに含まれている元素は水素である。",
+      "摂取したたんぱく質はアミノ酸やジペプチドに分解され、リンパ管を経て肝臓に入り、全身に送られ、体たんぱく質の材料となる。",
+      "十二指腸に注ぎこむ膵液には、たんぱく質分解酵素のペプシンが含まれる。",
+      "たんぱく質の代謝により生じた毒性の強いアンモニアは、肝臓の尿素回路で無毒の尿素に変換され、尿中に排泄される。"
+    ],
+    answer: [4],
+    explanation: "アミノ酸が分解されると毒性の強いアンモニアが生じますが、肝臓の尿素回路で無毒な尿素に変換され、尿中へ排泄されます。たんぱく質に特徴的な元素は窒素で、吸収後はリンパ管ではなく門脈を経て肝臓に入ります。ペプシンは胃の消化酵素です。"
+  },
+  {
+    id: "sports-nutrition-03-005",
+    category: "スポーツ栄養学③",
+    type: "input",
+    prompt: "膵臓から分泌される膵液に含まれているたんぱく質分解酵素を3つ書きなさい。",
+    answerCount: 3,
+    placeholder: "例: トリプシン",
+    acceptedAnswers: [
+      { label: "トリプシン", aliases: ["trypsin"] },
+      { label: "キモトリプシン", aliases: ["chymotrypsin"] },
+      { label: "カルボキシペプチダーゼ", aliases: ["カルボキシペプチターゼ", "carboxypeptidase"] }
+    ],
+    explanation: "十二指腸に注ぎ込まれる膵液には、たんぱく質分解酵素としてトリプシン、キモトリプシン、カルボキシペプチダーゼなどが含まれます。"
+  },
+  {
+    id: "sports-nutrition-03-006",
+    category: "スポーツ栄養学③",
+    type: "input",
+    prompt: "必須アミノ酸をすべて書きなさい。",
+    answerCount: 9,
+    placeholder: "例: バリン",
+    acceptedAnswers: [
+      { label: "フェニルアラニン", aliases: ["phenylalanine", "Phe"] },
+      { label: "ロイシン", aliases: ["leucine", "Leu"] },
+      { label: "バリン", aliases: ["valine", "Val"] },
+      { label: "イソロイシン", aliases: ["イソロイシン", "isoleucine", "Ile"] },
+      { label: "スレオニン", aliases: ["トレオニン", "threonine", "Thr"] },
+      { label: "ヒスチジン", aliases: ["histidine", "His"] },
+      { label: "トリプトファン", aliases: ["tryptophan", "Trp"] },
+      { label: "リジン", aliases: ["リシン", "lysine", "Lys"] },
+      { label: "メチオニン", aliases: ["methionine", "Met"] }
+    ],
+    explanation: "必須アミノ酸は、フェニルアラニン、ロイシン、バリン、イソロイシン、スレオニン、ヒスチジン、トリプトファン、リジン、メチオニンの9種類です。"
   }
 ];
