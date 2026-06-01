@@ -27,10 +27,13 @@ const els = {
   checkBtn: document.getElementById("checkBtn"),
   nextBtn: document.getElementById("nextBtn"),
   shuffleBtn: document.getElementById("shuffleBtn"),
-  resetBtn: document.getElementById("resetBtn")
+  resetBtn: document.getElementById("resetBtn"),
+  retryBtn: null
 };
 
 function init() {
+  setupRetryButton();
+
   if (!state.allQuestions.length) {
     showEmptyMessage();
     return;
@@ -38,6 +41,21 @@ function init() {
   setupCategoryFilter();
   applyFilterAndReset();
   bindEvents();
+}
+
+function setupRetryButton() {
+  const actions = document.querySelector(".actions");
+  if (!actions || els.retryBtn) return;
+
+  const retryBtn = document.createElement("button");
+  retryBtn.id = "retryBtn";
+  retryBtn.className = "btn ghost";
+  retryBtn.type = "button";
+  retryBtn.textContent = "再挑戦";
+  retryBtn.hidden = true;
+
+  els.nextBtn.insertAdjacentElement("afterend", retryBtn);
+  els.retryBtn = retryBtn;
 }
 
 function setupCategoryFilter() {
@@ -52,6 +70,9 @@ function bindEvents() {
   els.nextBtn.addEventListener("click", nextQuestion);
   els.shuffleBtn.addEventListener("click", shuffleCurrentQuestions);
   els.resetBtn.addEventListener("click", applyFilterAndReset);
+  if (els.retryBtn) {
+    els.retryBtn.addEventListener("click", applyFilterAndReset);
+  }
   els.categoryFilter.addEventListener("change", () => {
     state.selectedCategory = els.categoryFilter.value;
     applyFilterAndReset();
@@ -66,6 +87,7 @@ function applyFilterAndReset() {
   state.score = 0;
   state.answered = false;
   els.nextBtn.textContent = "次へ";
+  hideRetryButton();
   if (!state.questions.length) {
     showEmptyMessage();
     return;
@@ -89,6 +111,7 @@ function renderQuestion() {
   updateStatus();
   els.checkBtn.disabled = false;
   els.nextBtn.disabled = true;
+  hideRetryButton();
 }
 
 function getHelperText(question) {
@@ -204,16 +227,23 @@ function checkInputAnswer(question) {
 }
 
 function finishQuestion() {
+  const isLastQuestion = state.currentIndex >= state.questions.length - 1;
+
   els.checkBtn.disabled = true;
-  els.nextBtn.disabled = state.currentIndex >= state.questions.length - 1;
+  els.nextBtn.disabled = isLastQuestion;
   updateStatus();
-  if (state.currentIndex >= state.questions.length - 1) els.nextBtn.textContent = "終了";
+
+  if (isLastQuestion) {
+    els.nextBtn.textContent = "終了";
+    showRetryButton();
+  }
 }
 
 function nextQuestion() {
   if (state.currentIndex < state.questions.length - 1) {
     state.currentIndex += 1;
     els.nextBtn.textContent = "次へ";
+    hideRetryButton();
     renderQuestion();
   }
 }
@@ -224,7 +254,20 @@ function shuffleCurrentQuestions() {
   state.score = 0;
   state.answered = false;
   els.nextBtn.textContent = "次へ";
+  hideRetryButton();
   renderQuestion();
+}
+
+function showRetryButton() {
+  if (els.retryBtn) {
+    els.retryBtn.hidden = false;
+  }
+}
+
+function hideRetryButton() {
+  if (els.retryBtn) {
+    els.retryBtn.hidden = true;
+  }
 }
 
 function getCurrentQuestion() {
@@ -370,6 +413,7 @@ function showEmptyMessage() {
   els.helperText.textContent = "questions.js に問題を追加してください。";
   els.choicesForm.innerHTML = "";
   hideResult();
+  hideRetryButton();
   els.categoryBadge.textContent = "-";
   els.typeBadge.textContent = "-";
   els.progressText.textContent = "0 / 0";
