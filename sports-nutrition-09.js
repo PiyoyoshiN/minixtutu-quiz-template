@@ -8,7 +8,7 @@ QUESTIONS.push(
     type: "input",
     prompt: "基礎代謝基準値表を用いて、30歳女性・体重55kgの基礎代謝量を求めなさい。1の位を四捨五入すること。",
     answerCount: 1,
-    placeholder: "例: 1200",
+    placeholder: "数値を入力",
     acceptedAnswers: [
       {
         label: "1200 kcal/日",
@@ -23,7 +23,7 @@ QUESTIONS.push(
     type: "input",
     prompt: "30歳女性・体重55kg、身体活動レベルが「普通（Ⅱ）」の場合の推定エネルギー必要量を求めなさい。体重55kgは標準体重である。",
     answerCount: 1,
-    placeholder: "例: 2100",
+    placeholder: "数値を入力",
     acceptedAnswers: [
       {
         label: "約2100 kcal/日",
@@ -38,7 +38,7 @@ QUESTIONS.push(
     type: "input",
     prompt: "国立スポーツ科学センター（JISS）の式を用いて、22歳男性サッカー選手・体重65.0kg・体脂肪率5.3％の基礎代謝量を求めなさい。1の位を四捨五入すること。",
     answerCount: 1,
-    placeholder: "例: 1750",
+    placeholder: "数値を入力",
     acceptedAnswers: [
       {
         label: "1750 kcal/日",
