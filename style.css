@@ -277,6 +277,50 @@ h2 {
   color: #344054;
 }
 
+.result-panel h2 {
+  margin-bottom: 12px;
+}
+
+.result-score {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: clamp(2rem, 7vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.result-message {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.incorrect-section {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.incorrect-section h3 {
+  margin: 0 0 12px;
+}
+
+.incorrect-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #344054;
+  line-height: 1.6;
+}
+
+.result-actions {
+  margin-top: 24px;
+}
+
 .actions {
   display: flex;
   gap: 10px;
