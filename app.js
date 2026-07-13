@@ -9,13 +9,24 @@ const state = {
   currentIndex: 0,
   score: 0,
   answered: false,
-  selectedCategory: "all"
+  selectedCategory: "all",
+  selectedQuestionCount: "all",
+  incorrectQuestionIds: new Set()
 };
 
 const els = {
   progressText: document.getElementById("progressText"),
   scoreText: document.getElementById("scoreText"),
   categoryFilter: document.getElementById("categoryFilter"),
+  questionCountFilter: document.getElementById("questionCountFilter"),
+  questionPanel: document.getElementById("questionPanel"),
+  resultPanel: document.getElementById("resultPanel"),
+  resultScore: document.getElementById("resultScore"),
+  resultMessage: document.getElementById("resultMessage"),
+  incorrectSection: document.getElementById("incorrectSection"),
+  incorrectList: document.getElementById("incorrectList"),
+  retryWrongBtn: document.getElementById("retryWrongBtn"),
+  retryAllBtn: document.getElementById("retryAllBtn"),
   categoryBadge: document.getElementById("categoryBadge"),
   typeBadge: document.getElementById("typeBadge"),
   questionText: document.getElementById("questionText"),
@@ -27,13 +38,10 @@ const els = {
   checkBtn: document.getElementById("checkBtn"),
   nextBtn: document.getElementById("nextBtn"),
   shuffleBtn: document.getElementById("shuffleBtn"),
-  resetBtn: document.getElementById("resetBtn"),
-  retryBtn: null
+  resetBtn: document.getElementById("resetBtn")
 };
 
 function init() {
-  setupRetryButton();
-
   if (!state.allQuestions.length) {
     showEmptyMessage();
     return;
@@ -41,21 +49,6 @@ function init() {
   setupCategoryFilter();
   applyFilterAndReset();
   bindEvents();
-}
-
-function setupRetryButton() {
-  const actions = document.querySelector(".actions");
-  if (!actions || els.retryBtn) return;
-
-  const retryBtn = document.createElement("button");
-  retryBtn.id = "retryBtn";
-  retryBtn.className = "btn ghost";
-  retryBtn.type = "button";
-  retryBtn.textContent = "再挑戦";
-  retryBtn.hidden = true;
-
-  els.nextBtn.insertAdjacentElement("afterend", retryBtn);
-  els.retryBtn = retryBtn;
 }
 
 function setupCategoryFilter() {
@@ -70,33 +63,62 @@ function bindEvents() {
   els.nextBtn.addEventListener("click", nextQuestion);
   els.shuffleBtn.addEventListener("click", shuffleCurrentQuestions);
   els.resetBtn.addEventListener("click", applyFilterAndReset);
-  if (els.retryBtn) {
-    els.retryBtn.addEventListener("click", applyFilterAndReset);
-  }
+  els.retryWrongBtn.addEventListener("click", retryIncorrectQuestions);
+  els.retryAllBtn.addEventListener("click", retryCurrentQuestions);
+
   els.categoryFilter.addEventListener("change", () => {
     state.selectedCategory = els.categoryFilter.value;
+    applyFilterAndReset();
+  });
+
+  els.questionCountFilter.addEventListener("change", () => {
+    state.selectedQuestionCount = els.questionCountFilter.value;
     applyFilterAndReset();
   });
 }
 
 function applyFilterAndReset() {
-  state.questions = state.selectedCategory === "all"
+  startQuestionSet(buildQuestionSet());
+}
+
+function getCategoryQuestionPool() {
+  return state.selectedCategory === "all"
     ? state.allQuestions.filter((q) => !q.hiddenInAll)
     : state.allQuestions.filter((q) => (q.category || "未分類") === state.selectedCategory);
+}
+
+function buildQuestionSet(forceShuffle = false) {
+  const pool = getCategoryQuestionPool();
+  const requestedCount = state.selectedQuestionCount === "all"
+    ? pool.length
+    : Number(state.selectedQuestionCount);
+  const shouldShuffle = forceShuffle || state.selectedQuestionCount !== "all";
+  const prepared = shouldShuffle ? shuffleArray([...pool]) : [...pool];
+
+  return prepared.slice(0, Math.min(requestedCount, prepared.length));
+}
+
+function startQuestionSet(questions) {
+  state.questions = [...questions];
   state.currentIndex = 0;
   state.score = 0;
   state.answered = false;
+  state.incorrectQuestionIds.clear();
   els.nextBtn.textContent = "次へ";
-  hideRetryButton();
+  hideResultPanel();
+
   if (!state.questions.length) {
     showEmptyMessage();
     return;
   }
+
   renderQuestion();
 }
 
 function renderQuestion() {
   const question = getCurrentQuestion();
+  els.questionPanel.hidden = false;
+  els.resultPanel.hidden = true;
   state.answered = false;
   els.categoryBadge.textContent = question.category || "未分類";
   els.typeBadge.textContent = getTypeLabel(question);
@@ -111,7 +133,6 @@ function renderQuestion() {
   updateStatus();
   els.checkBtn.disabled = false;
   els.nextBtn.disabled = true;
-  hideRetryButton();
 }
 
 function getHelperText(question) {
@@ -197,7 +218,7 @@ function checkAnswer() {
 
   const isCorrect = isSameAnswer(selected, question.answer);
   state.answered = true;
-  if (isCorrect) state.score += 1;
+  recordAnswer(question, isCorrect);
   markChoices(question, selected);
   showFeedback(isCorrect ? "正解！" : `不正解。正解は ${formatAnswer(question.answer)} です。`, isCorrect ? "correct" : "wrong");
   showExplanation(question.explanation || "解説はまだ入力されていません。");
@@ -216,7 +237,7 @@ function checkInputAnswer(question) {
   const result = evaluateInputAnswer(question, rawAnswers);
   const isCorrect = result.isCorrect;
   state.answered = true;
-  if (isCorrect) state.score += 1;
+  recordAnswer(question, isCorrect);
   markTextInputs(result.details);
   showFeedback(
     isCorrect ? "正解！" : `不正解。正解 ${result.matchedCount} / ${result.requiredCount}。正解例: ${result.answerLabels.join("・")}`,
@@ -226,48 +247,86 @@ function checkInputAnswer(question) {
   finishQuestion();
 }
 
+function recordAnswer(question, isCorrect) {
+  if (isCorrect) {
+    state.score += 1;
+    return;
+  }
+
+  state.incorrectQuestionIds.add(question.id);
+}
+
 function finishQuestion() {
   const isLastQuestion = state.currentIndex >= state.questions.length - 1;
 
   els.checkBtn.disabled = true;
-  els.nextBtn.disabled = isLastQuestion;
+  els.nextBtn.disabled = false;
+  els.nextBtn.textContent = isLastQuestion ? "結果を見る" : "次へ";
   updateStatus();
-
-  if (isLastQuestion) {
-    els.nextBtn.textContent = "終了";
-    showRetryButton();
-  }
 }
 
 function nextQuestion() {
   if (state.currentIndex < state.questions.length - 1) {
     state.currentIndex += 1;
     els.nextBtn.textContent = "次へ";
-    hideRetryButton();
     renderQuestion();
+    return;
   }
+
+  showResults();
 }
 
 function shuffleCurrentQuestions() {
-  state.questions = shuffleArray([...state.questions]);
-  state.currentIndex = 0;
-  state.score = 0;
-  state.answered = false;
-  els.nextBtn.textContent = "次へ";
-  hideRetryButton();
-  renderQuestion();
+  startQuestionSet(buildQuestionSet(true));
 }
 
-function showRetryButton() {
-  if (els.retryBtn) {
-    els.retryBtn.hidden = false;
-  }
+function showResults() {
+  const total = state.questions.length;
+  const incorrectQuestions = getIncorrectQuestions();
+  const percentage = total > 0 ? Math.round((state.score / total) * 100) : 0;
+
+  els.questionPanel.hidden = true;
+  els.resultPanel.hidden = false;
+  els.resultScore.textContent = `Score: ${state.score} / ${total}`;
+  els.progressText.textContent = `${total} / ${total}`;
+  els.scoreText.textContent = `Score: ${state.score}`;
+
+  els.resultMessage.textContent = incorrectQuestions.length === 0
+    ? "正答率 100％。全問正解です！"
+    : `正答率 ${percentage}％。間違えた${incorrectQuestions.length}問をもう一度確認できます。`;
+
+  els.incorrectList.innerHTML = "";
+  incorrectQuestions.forEach((question) => {
+    const item = document.createElement("li");
+    item.textContent = `${question.category || "未分類"}：${question.prompt}`;
+    els.incorrectList.appendChild(item);
+  });
+
+  const hasIncorrectQuestions = incorrectQuestions.length > 0;
+  els.incorrectSection.hidden = !hasIncorrectQuestions;
+  els.retryWrongBtn.hidden = !hasIncorrectQuestions;
 }
 
-function hideRetryButton() {
-  if (els.retryBtn) {
-    els.retryBtn.hidden = true;
-  }
+function hideResultPanel() {
+  els.resultPanel.hidden = true;
+  els.questionPanel.hidden = false;
+  els.incorrectList.innerHTML = "";
+  els.incorrectSection.hidden = true;
+  els.retryWrongBtn.hidden = false;
+}
+
+function getIncorrectQuestions() {
+  return state.questions.filter((question) => state.incorrectQuestionIds.has(question.id));
+}
+
+function retryIncorrectQuestions() {
+  const incorrectQuestions = getIncorrectQuestions();
+  if (!incorrectQuestions.length) return;
+  startQuestionSet(incorrectQuestions);
+}
+
+function retryCurrentQuestions() {
+  startQuestionSet(state.questions);
 }
 
 function getCurrentQuestion() {
@@ -408,12 +467,12 @@ function shuffleArray(array) {
 }
 
 function showEmptyMessage() {
+  hideResultPanel();
   els.questionText.textContent = "問題がありません";
   els.helperText.hidden = false;
   els.helperText.textContent = "questions.js に問題を追加してください。";
   els.choicesForm.innerHTML = "";
   hideResult();
-  hideRetryButton();
   els.categoryBadge.textContent = "-";
   els.typeBadge.textContent = "-";
   els.progressText.textContent = "0 / 0";
