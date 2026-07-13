@@ -20,6 +20,7 @@ const els = {
   categoryFilter: document.getElementById("categoryFilter"),
   questionCountFilter: document.getElementById("questionCountFilter"),
   questionPanel: document.getElementById("questionPanel"),
+  questionReference: document.getElementById("questionReference"),
   resultPanel: document.getElementById("resultPanel"),
   resultScore: document.getElementById("resultScore"),
   resultMessage: document.getElementById("resultMessage"),
@@ -128,6 +129,7 @@ function renderQuestion() {
   els.helperText.textContent = helper;
   els.helperText.hidden = helper === "";
 
+  renderQuestionReference(question);
   renderAnswerArea(question);
   hideResult();
   updateStatus();
@@ -139,6 +141,61 @@ function getHelperText(question) {
   if (question.type === "multi") return `正しいものを${question.answer.length}つ選んでください。`;
   if (question.type === "input") return "";
   return "正しいものを1つ選んでください。";
+}
+
+function renderQuestionReference(question) {
+  const reference = question.referenceTable;
+  els.questionReference.innerHTML = "";
+  els.questionReference.hidden = true;
+
+  if (!reference || !Array.isArray(reference.columns) || !Array.isArray(reference.rows)) {
+    return;
+  }
+
+  if (reference.title) {
+    const title = document.createElement("h3");
+    title.textContent = reference.title;
+    els.questionReference.appendChild(title);
+  }
+
+  if (reference.note) {
+    const note = document.createElement("p");
+    note.className = "reference-note";
+    note.textContent = reference.note;
+    els.questionReference.appendChild(note);
+  }
+
+  const scroller = document.createElement("div");
+  scroller.className = "reference-table-scroll";
+
+  const table = document.createElement("table");
+  table.className = "reference-table";
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  reference.columns.forEach((column) => {
+    const th = document.createElement("th");
+    th.scope = "col";
+    th.textContent = column;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  const tbody = document.createElement("tbody");
+  reference.rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((cell) => {
+      const td = document.createElement("td");
+      td.textContent = cell;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  table.append(thead, tbody);
+  scroller.appendChild(table);
+  els.questionReference.appendChild(scroller);
+  els.questionReference.hidden = false;
 }
 
 function renderAnswerArea(question) {
@@ -471,6 +528,8 @@ function showEmptyMessage() {
   els.questionText.textContent = "問題がありません";
   els.helperText.hidden = false;
   els.helperText.textContent = "questions.js に問題を追加してください。";
+  els.questionReference.innerHTML = "";
+  els.questionReference.hidden = true;
   els.choicesForm.innerHTML = "";
   hideResult();
   els.categoryBadge.textContent = "-";
