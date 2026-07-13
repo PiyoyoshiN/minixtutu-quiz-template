@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minixtutu Quiz Template</title>
+  <title>スポーツ栄養学 期末対策</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="app-shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">Reusable quiz app</p>
-        <h1>Minixtutu Quiz Template</h1>
-        <p class="lead">問題データを差し替えるだけで使える、軽量クイズテンプレート。</p>
+        <p class="eyebrow">Sports Nutrition Quiz</p>
+        <h1>スポーツ栄養学 期末対策</h1>
+        <p class="lead">授業回ごとに復習できる、期末試験対策クイズ。</p>
       </div>
       <div class="score-board" aria-label="進捗とスコア">
         <span id="progressText">0 / 0</span>
@@ -23,32 +23,61 @@
     <section class="toolbar" aria-label="クイズ設定">
       <label class="select-label" for="categoryFilter">カテゴリ</label>
       <select id="categoryFilter"></select>
+      <label class="select-label" for="questionCountFilter">出題数</label>
+      <select id="questionCountFilter">
+        <option value="all">すべて</option>
+        <option value="10">ランダム10問</option>
+        <option value="20">ランダム20問</option>
+      </select>
       <button id="shuffleBtn" class="btn ghost" type="button">シャッフル</button>
       <button id="resetBtn" class="btn ghost danger" type="button">リセット</button>
     </section>
 
     <section class="card" aria-live="polite">
-      <div class="question-meta">
-        <span id="categoryBadge" class="badge">-</span>
-        <span id="typeBadge" class="badge soft">-</span>
+      <div id="questionPanel">
+        <div class="question-meta">
+          <span id="categoryBadge" class="badge">-</span>
+          <span id="typeBadge" class="badge soft">-</span>
+        </div>
+
+        <h2 id="questionText">読み込み中…</h2>
+        <p id="helperText" class="helper">選択肢を選んで「判定」を押してください。</p>
+
+        <form id="choicesForm" class="choices"></form>
+
+        <div id="feedback" class="feedback" hidden></div>
+
+        <section id="explanationBox" class="explanation" hidden>
+          <h3>解説</h3>
+          <p id="explanationText"></p>
+        </section>
+
+        <div class="actions">
+          <button id="checkBtn" class="btn primary" type="button">判定</button>
+          <button id="nextBtn" class="btn" type="button" disabled>次へ</button>
+        </div>
       </div>
 
-      <h2 id="questionText">読み込み中…</h2>
-      <p id="helperText" class="helper">選択肢を選んで「判定」を押してください。</p>
+      <section id="resultPanel" class="result-panel" hidden>
+        <p class="eyebrow">Quiz Result</p>
+        <h2>結果</h2>
+        <p id="resultScore" class="result-score">Score: 0 / 0</p>
+        <p id="resultMessage" class="result-message"></p>
 
-      <form id="choicesForm" class="choices"></form>
+        <div id="incorrectSection" class="incorrect-section" hidden>
+          <h3>間違えた問題</h3>
+          <ol id="incorrectList" class="incorrect-list"></ol>
+        </div>
 
-      <div id="feedback" class="feedback" hidden></div>
-
-      <section id="explanationBox" class="explanation" hidden>
-        <h3>解説</h3>
-        <p id="explanationText"></p>
+        <div class="actions result-actions">
+          <button id="retryWrongBtn" class="btn primary" type="button">
+            間違えた問題だけ再挑戦
+          </button>
+          <button id="retryAllBtn" class="btn" type="button">
+            同じ問題でもう一度
+          </button>
+        </div>
       </section>
-
-      <div class="actions">
-        <button id="checkBtn" class="btn primary" type="button">判定</button>
-        <button id="nextBtn" class="btn" type="button" disabled>次へ</button>
-      </div>
     </section>
   </main>
 
@@ -61,6 +90,6 @@
   <script src="./sports-nutrition-10.js?v=3"></script>
   <script src="./sports-nutrition-11.js?v=2"></script>
   <script src="./sports-nutrition-ondemand.js?v=1"></script>
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>
